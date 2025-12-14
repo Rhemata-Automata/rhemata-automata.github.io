@@ -1,21 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Virtuoso } from 'react-virtuoso';
 import './App.css';
+
+function throttle(func, limit) {
+  let lastFunc;
+  let lastRan;
+  return function () {
+    const context = this;
+    const args = arguments;
+    if (!lastRan) {
+      func.apply(context, args);
+      lastRan = Date.now();
+    } else {
+      clearTimeout(lastFunc);
+      lastFunc = setTimeout(function () {
+        if (Date.now() - lastRan >= limit) {
+          func.apply(context, args);
+          lastRan = Date.now();
+        }
+      }, Math.max(0, limit - (Date.now() - lastRan)));
+    }
+  };
+}
 
 function App() {
   const [bibleData, setBibleData] = useState([]);
   const [filteredBible, setFilteredBible] = useState([]);
   const [selectedBooks, setSelectedBooks] = useState({});
-  const [range, setRange] = useState({ start: 0, end: 0 });
   const [focusIndex, setFocusIndex] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const containerRef = useRef(null);
-  const verseRefs = useRef([]);
-
+  const virtuosoRef = useRef(null);
   const isDragging = useRef(false);
   const startY = useRef(0);
   const startScrollTop = useRef(0);
-  const BUFFER_SIZE = 50;
-  const LOAD_INCREMENT = 20;
+  const focus0Ref = useRef(null);
+  const [focus0Height, setFocus0Height] = useState(60); // fallback estimate
 
   const otBooks = [
     'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy',
@@ -54,7 +74,6 @@ function App() {
         const allBooks = [...otBooks, ...ntBooks];
         setSelectedBooks(Object.fromEntries(allBooks.map(book => [book, true])));
         setFilteredBible(data);
-        jumpToRandom(data);
       });
   }, []);
 
@@ -68,91 +87,82 @@ function App() {
       return selectedBooks[book] || false;
     });
     setFilteredBible(filtered);
-    jumpToRandom(filtered);
   }, [selectedBooks, bibleData]);
 
-  const jumpToRandom = (data = filteredBible) => {
-    if (!data.length) return;
-    const randIndex = Math.floor(Math.random() * data.length);
-    const start = Math.max(0, randIndex - BUFFER_SIZE);
-    const end = Math.min(data.length, randIndex + BUFFER_SIZE);
-    setRange({ start, end });
-    setTimeout(() => {
-      if (!containerRef.current) return;
-      const relativeIndex = randIndex - start;
-      const node = verseRefs.current[relativeIndex];
-      if (node) {
-        node.scrollIntoView({ block: 'center' });
-        setFocusIndex(relativeIndex);
-      }
-    }, 0);
-  };
-
-  const handleScroll = () => {
+  useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const { scrollTop, scrollHeight, clientHeight } = container;
 
-    if (scrollTop < 50 && range.start > 0) {
-      const newStart = Math.max(0, range.start - LOAD_INCREMENT);
-      const oldHeight = scrollHeight;
-      setRange(prev => ({ ...prev, start: newStart }));
-      requestAnimationFrame(() => {
-        const newHeight = container.scrollHeight;
-        container.scrollTop = scrollTop + (newHeight - oldHeight);
-      });
+    const handleMouseDown = (e) => {
+      isDragging.current = true;
+      startY.current = e.pageY;
+      startScrollTop.current = container.scrollTop;
+      container.style.cursor = 'grabbing';
+    };
+
+    const handleMouseLeave = () => {
+      isDragging.current = false;
+      container.style.cursor = 'grab';
+    };
+
+    const handleMouseUp = () => {
+      isDragging.current = false;
+      container.style.cursor = 'grab';
+    };
+
+    const handleMouseMove = (e) => {
+      if (!isDragging.current) return;
+      e.preventDefault();
+      const y = e.pageY;
+      const walk = (y - startY.current) * 1.5;
+      container.scrollTop = startScrollTop.current - walk;
+    };
+
+    container.addEventListener('mousedown', handleMouseDown);
+    container.addEventListener('mouseleave', handleMouseLeave);
+    container.addEventListener('mouseup', handleMouseUp);
+    container.addEventListener('mousemove', handleMouseMove);
+    container.style.cursor = 'grab';
+
+    return () => {
+      container.removeEventListener('mousedown', handleMouseDown);
+      container.removeEventListener('mouseleave', handleMouseLeave);
+      container.removeEventListener('mouseup', handleMouseUp);
+      container.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (focus0Ref.current) {
+      setFocus0Height(focus0Ref.current.offsetHeight);
     }
+  }, [focusIndex]);
 
-    if (scrollHeight - scrollTop - clientHeight < 50 && range.end < filteredBible.length) {
-      const newEnd = Math.min(filteredBible.length, range.end + LOAD_INCREMENT);
-      setRange(prev => ({ ...prev, end: newEnd }));
-    }
-
-    const centerY = container.offsetTop + clientHeight / 2;
-    let closestIndex = null;
-    let smallestDelta = Infinity;
-    verseRefs.current.forEach((el, i) => {
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const elCenter = rect.top + rect.height / 2;
-      const delta = Math.abs(elCenter - centerY);
-      if (delta < smallestDelta) {
-        smallestDelta = delta;
-        closestIndex = i;
-      }
+  const jumpToRandom = () => {
+    if (!filteredBible.length || !virtuosoRef.current) return;
+    const randIndex = Math.floor(Math.random() * filteredBible.length);
+    virtuosoRef.current.scrollToIndex({
+      index: randIndex,
+      align: 'center',
+      behavior: 'auto'
     });
-    if (closestIndex !== null && closestIndex !== focusIndex) {
-      setFocusIndex(closestIndex);
-    }
   };
 
-  const onMouseDown = (e) => {
-    isDragging.current = true;
-    startY.current = e.pageY;
-    startScrollTop.current = containerRef.current.scrollTop;
-    containerRef.current.style.cursor = 'grabbing';
-  };
-  const endDrag = () => {
-    isDragging.current = false;
-    if (containerRef.current) containerRef.current.style.cursor = 'grab';
-  };
-  const onMouseMove = (e) => {
-    if (!isDragging.current) return;
-    e.preventDefault();
-    const y = e.pageY;
-    const walk = (y - startY.current) * 1.5;
-    containerRef.current.scrollTop = startScrollTop.current - walk;
-  };
+  const handleRangeChanged = useCallback(throttle(({ startIndex, endIndex }) => {
+    const viewportHeight = containerRef.current?.clientHeight || window.innerHeight;
+    const offsetPixels = focus0Height * 0.6;
+    const offsetItems = Math.round(offsetPixels / (viewportHeight / (endIndex - startIndex + 1)));
+    const centerIndex = startIndex + Math.floor((endIndex - startIndex + 1) / 2) - offsetItems;
+    setFocusIndex(Math.max(0, centerIndex));
+  }, 100), [focus0Height]);
 
-  const visibleVerses = filteredBible.slice(range.start, range.end);
-
-  const getFocusClass = (i) => {
-    if (focusIndex == null) return '';
-    const d = Math.abs(i - focusIndex);
-    if (d === 0) return 'focus-0';
-    if (d === 1) return 'focus-1';
-    if (d === 2) return 'focus-2';
-    if (d === 3) return 'focus-3';
+  const getFocusClass = (index) => {
+    if (focusIndex === null) return '';
+    const distance = Math.abs(index - focusIndex);
+    if (distance === 0) return 'focus-0';
+    if (distance === 1) return 'focus-1';
+    if (distance === 2) return 'focus-2';
+    if (distance === 3) return 'focus-3';
     return '';
   };
 
@@ -182,44 +192,39 @@ function App() {
     }));
   };
 
+  const itemContent = (index) => {
+    const verse = filteredBible[index];
+    const ref = verse[0];
+    const url = constructVerseURL(ref);
+    const isFocus0 = focusIndex === index;
+    return (
+      <div
+        ref={isFocus0 ? focus0Ref : null}
+        className={`verse-row ${getFocusClass(index)}`}
+      >
+        <a href={url} target="_blank" rel="noopener noreferrer" className="ref">
+          {ref}
+        </a>
+        <span className="text">{verse[1]}</span>
+      </div>
+    );
+  };
+
   return (
     <div className="app-wrapper">
-      <div
-        className="scroll-container"
-        ref={containerRef}
-        onScroll={handleScroll}
-        onMouseDown={onMouseDown}
-        onMouseLeave={endDrag}
-        onMouseUp={endDrag}
-        onMouseMove={onMouseMove}
-      >
-        {visibleVerses.map((verse, i) => {
-          const ref = verse[0];
-          const url = constructVerseURL(ref);
-          return (
-            <div
-              key={range.start + i}
-              ref={el => (verseRefs.current[i] = el)}
-              className={`verse-row ${getFocusClass(i)}`}
-            >
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ref"
-              >
-                {ref}
-              </a>
-              <span className="text">{verse[1]}</span>
-            </div>
-          );
-        })}
-      </div>
+      <Virtuoso
+        ref={virtuosoRef}
+        data={filteredBible}
+        itemContent={itemContent}
+        style={{ height: '100vh', width: '100%' }}
+        scrollerRef={(ref) => { containerRef.current = ref; }}
+        rangeChanged={handleRangeChanged}
+      />
       <div className="right-buttons">
         <button className="settings-btn" onClick={() => setShowSettings(true)}>
           ⚙️
         </button>
-        <button className="random-btn" onClick={() => jumpToRandom()}>
+        <button className="random-btn" onClick={jumpToRandom}>
           New Random
         </button>
       </div>
