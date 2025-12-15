@@ -75,8 +75,7 @@ function App() {
     const centerY = scrollTop + viewportHeight / 2;
     let minDistance = Infinity;
     let newFocusIndex = null;
-    const verseRows = container.querySelectorAll('.verse-row');
-    verseRows.forEach(el => {
+    container.querySelectorAll('.text').forEach(el => {
       const index = parseInt(el.dataset.index, 10);
       const rowTop = el.offsetTop;
       const rowHeight = el.offsetHeight;
@@ -165,17 +164,15 @@ function App() {
   };
   const itemContent = (index) => {
     const item = filteredBible[index];
-    const focusClass = getFocusClass(index);
-
     if (item.length === 3) {
       return (
-        <div className={`verse-row heading-${item[2]} ${focusClass}`} data-index={index}>
+        <div className={`heading-${item[2]}`} data-index={index}>
           {item[1]}
         </div>
       );
     }
     return (
-      <div className={`verse-row ${focusClass}`} data-index={index} onClick={(e) => handleVerseClick(index, e)}>{item[1]}</div>
+      <div className={`text ${getFocusClass(index)}`} data-index={index} onClick={(e) => handleVerseClick(index, e)}>{item[1]}</div>
     );
   };
 

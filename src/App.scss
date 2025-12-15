@@ -48,53 +48,54 @@ html {
   }
 }
 
-.verse-row {
+.text {
+  text-align: justify;
+  text-justify: inter-word;
   margin: 4px 0;
   box-sizing: border-box;
   line-height: 1.2;
   font-size: 1rem;
   color: $text-5;
   display: block;
-  transition: transform 0.25s, color 0.1s, padding 0.1s, border 0.05s, filter 0.05s;
+  transition: transform 0.25s, color 0.1s, padding 0.05s, border 0.05s, filter 0.15s;
   transform-origin: center;
   overflow: hidden;
   border-bottom: 1px dotted $border-dark;
   border-top: 1px solid $border-dark;
-  padding: 0 4rem 0 2rem;
+  padding: 0 4rem .15rem 2rem;
   user-select: none;
   cursor: pointer;
-  
-  &.heading-1,
-  &.heading-2 {
-    font-weight: bold;
-    user-select: none;
-  }
-  &.heading-1 {
-    padding: .5rem 3.6rem;
-    font-size: 1.15rem;
-    text-decoration: underline;
-    text-underline-offset: 0.2rem;
-    text-decoration-thickness: 0.07rem;
-  }
-  &.heading-2 {
-    padding: .5rem 4rem;
-    font-size: 1.05rem;
-    font-style: italic;
-  }
 }
-.verse-row:not(.focus-0):not(.focus-1):not(.focus-2):not(.focus-3) {
+.heading-1,
+.heading-2 {
+  font-weight: bold;
+  user-select: none;
+}
+.heading-1 {
+  padding: .5rem 3.6rem;
+  font-size: 1.1rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+  text-decoration-thickness: 0.07rem;
+}
+.heading-2 {
+  padding: .4rem 4rem;
+  font-size: 1.01rem;
+  font-style: italic;
+}
+
+.text:not(.focus-0):not(.focus-1):not(.focus-2):not(.focus-3) {
   filter: blur(0.02rem);
 }
 
 .focus-0 {
   transform: scale(1.03);
   color: $text-1;
-  border-bottom: 1px solid $border-focus;
-  border-top: 1px solid $border-focus;
+  border-bottom: 2px dotted $border-focus;
+  border-top: 2px dotted $border-focus;
   filter: blur(0);
   text-decoration: underline;
   text-underline-offset: 0.15rem;
-  padding-bottom: 0.15rem;
   text-decoration-thickness: 0.03rem;
   text-decoration-color: $text-4;
 }
@@ -105,7 +106,6 @@ html {
   filter: blur(0);
   text-decoration: underline;
   text-underline-offset: 0.07rem;
-  padding-bottom: 0.07rem;
   text-decoration-thickness: 0.03rem;
   text-decoration-color: $text-5;
   text-decoration-style: dotted;
@@ -114,12 +114,11 @@ html {
 .focus-2 {
   transform: scale(1.0125);
   color: $text-3;
-  border-bottom: 1px solid #3917c0;
-  border-top: 1px solid #3917c0;
-  filter: blur(0.01rem);
+  border-bottom: 2px dotted #3917c0;
+  border-top: 2px dotted #3917c0;
+  filter: blur(0.015rem);
   text-decoration: underline;
   text-underline-offset: 0.05rem;
-  padding-bottom: 0.05rem;
   text-decoration-thickness: 0.01rem;
   text-decoration-color: $text-5;
   text-decoration-style: dotted;
@@ -128,10 +127,9 @@ html {
 .focus-3 {
   transform: scale(1.01);
   color: $text-4;
-  filter: blur(0.015rem);
+  filter: blur(0.017rem);
   text-decoration: underline;
   text-underline-offset: 0.02rem;
-  padding-bottom: 0.02rem;
   text-decoration-thickness: 0.002rem;
   text-decoration-color: $text-5;
   text-decoration-style: dotted;
