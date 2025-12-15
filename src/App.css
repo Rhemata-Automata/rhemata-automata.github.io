@@ -7,6 +7,20 @@ body, html {
   font-family: 'Verdana', sans-serif;
   overflow: hidden;
 }
+h1{
+  text-align: center;
+  font-size: 1.5rem;
+  padding: .5rem 0;
+  margin: 0;
+  user-select: none;
+}
+h2{
+  text-align: center;
+  font-size: 1.1rem;
+  padding: .5rem 0;
+  margin: 0;
+  user-select: none;
+}
 .app-wrapper {
   position: relative;
   height: 100vh;
@@ -26,43 +40,50 @@ body, html {
 }
 .verse-row {
   margin: 4px 0;
-  padding: 0 1rem;
+  padding: 0 0 0 2rem;
   box-sizing: border-box;
   line-height: 1.2;
   font-size: 1rem;
   color: #aaaaaabb;
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  column-gap: .8rem;
-  align-items: baseline;
+  display: block;
   transition: transform 0.15s, color 0.1s, padding 0.1s, border 0.05s, filter 0.1s;
-  transform-origin: left center;
-  filter: blur(.05rem);
+  transform-origin: center;
+  filter: blur(.03rem);
   overflow: hidden;
 }
 .text {
-  padding: 0 6.5rem 0 0;
+  padding: 0 4rem 0 0;
   min-width: 0;
   user-select: none;
+  cursor: pointer;
 }
-.ref {
-  font-size: 0.75rem;
-  color: #7a7a7a;
-  text-align: right;
-  user-select: none;
-  white-space: nowrap;
-  text-decoration: none;
-  display: block;
+.bubble {
+  position: fixed;
+  background: rgba(72, 72, 72, 0.52);
+  color: white;
+  padding: 1rem 1rem;
+  border-radius: 1rem;
+  font-size: 1.1rem;
+  pointer-events: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(.1rem);
+  max-width: 280px;
+  word-wrap: break-word;
 }
-.ref:hover {
-  color: #aaa;
+
+.bubble a {
+  color: #a0d8ff;
   text-decoration: underline;
+  font-weight: 500;
 }
-.focus-0 .ref {
+
+.bubble a:hover {
   color: #fff;
 }
+
 .focus-0 {
-  transform: scale(1.07);
+  transform: scale(1.05);
   color: #eee;
   border-bottom: 1px solid #4c1fff;
   border-top: 1px solid #4c1fff;
@@ -70,22 +91,22 @@ body, html {
   filter: blur(0);
 }
 .focus-1 {
-  transform: scale(1.03);
+  transform: scale(1.02);
   color: #ddd;
   filter: drop-shadow(0 0 1.2rem rgb(44, 180, 234));
   filter: blur(0);
 }
 .focus-2 {
-  transform: scale(1.02);
+  transform: scale(1.015);
   color: #d0d0d0ef;
   border-bottom: 1px solid #3917c0;
   border-top: 1px solid #3917c0;
-  filter: blur(.03rem);
+  filter: blur(.01rem);
 }
 .focus-3 {
   transform: scale(1.01);
   color: #c5c5c5d0;
-  filter: blur(.04rem);
+  filter: blur(.02rem);
 }
 .right-buttons {
   position: fixed;

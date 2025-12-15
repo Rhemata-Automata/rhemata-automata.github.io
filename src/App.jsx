@@ -5,11 +5,14 @@ import { otBooks, ntBooks, throttle, debounce, constructVerseURL } from './utils
 function App() {
   const [bibleData, setBibleData] = useState([]);
   const [filteredBible, setFilteredBible] = useState([]);
+  const [verseIndices, setVerseIndices] = useState([]);
   const [selectedBooks, setSelectedBooks] = useState({});
   const [focusIndex, setFocusIndex] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [bubbleInfo, setBubbleInfo] = useState(null);
   const containerRef = useRef(null);
   const virtuosoRef = useRef(null);
+  const bubbleRef = useRef(null);
   const isDragging = useRef(false);
   const startY = useRef(0);
   const startScrollTop = useRef(0);
@@ -35,6 +38,7 @@ function App() {
     setFilteredBible(filtered);
   }, [selectedBooks, bibleData]);
   useEffect(() => {
+    setVerseIndices(filteredBible.map((item, i) => item.length === 2 ? i : null).filter(i => i !== null));
     if (filteredBible.length > 0 && virtuosoRef.current) {
       jumpToRandom();
     }
@@ -97,7 +101,7 @@ function App() {
       if (newFocusIndex !== null && newFocusIndex !== focusIndex) {
         setFocusIndex(newFocusIndex);
       }
-    }, 100);
+    }, 64);
     const container = containerRef.current;
     if (container) {
       container.addEventListener('scroll', handleScroll);
@@ -111,9 +115,46 @@ function App() {
       window.removeEventListener('resize', handleScroll);
     };
   }, [focusIndex]);
+  useEffect(() => {
+    if (!bubbleInfo) return;
+    const hideBubble = () => setBubbleInfo(null);
+    const handleClickOutside = (e) => {
+      if (bubbleRef.current && !bubbleRef.current.contains(e.target)) {
+        hideBubble();
+      }
+    };
+    const handleScrollHide = () => hideBubble();
+    document.addEventListener('click', handleClickOutside);
+    if (containerRef.current) {
+      containerRef.current.addEventListener('scroll', handleScrollHide);
+    }
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      if (containerRef.current) {
+        containerRef.current.removeEventListener('scroll', handleScrollHide);
+      }
+    };
+  }, [bubbleInfo]);
+  const handleVerseClick = useCallback((index, e) => {
+    e.stopPropagation();
+    if (bubbleInfo && bubbleInfo.index === index) {
+      setBubbleInfo(null);
+      return;
+    }
+    const verse = filteredBible[index];
+    const ref = verse[0];
+    const url = constructVerseURL(ref);
+    setBubbleInfo({
+      index,                     
+      ref,
+      url,
+      position: { left: e.clientX + 10, top: e.clientY + 10 }
+    });
+  }, [filteredBible, bubbleInfo]);
   const jumpToRandom = () => {
-    if (!filteredBible.length || !virtuosoRef.current) return;
-    const randIndex = Math.floor(Math.random() * filteredBible.length);
+    if (!verseIndices.length || !virtuosoRef.current) return;
+    const randIdx = Math.floor(Math.random() * verseIndices.length);
+    const randIndex = verseIndices[randIdx];
     virtuosoRef.current.scrollToIndex({
       index: randIndex,
       align: 'center',
@@ -134,20 +175,25 @@ function App() {
     }));
   };
   const itemContent = (index) => {
-    const verse = filteredBible[index];
-    const ref = verse[0];
-    const url = constructVerseURL(ref);
-    return (
-      <div
-        className={`verse-row ${getFocusClass(index)}`}
-        data-index={index}
-      >
-        <a href={url} target="_blank" rel="noopener noreferrer" className="ref">
-          {ref}
-        </a>
-        <span className="text">{verse[1]}</span>
-      </div>
-    );
+    const item = filteredBible[index];
+    const focusClass = getFocusClass(index);
+    if (item.length === 3) {
+      const level = item[2];
+      const Heading = `h${level}`;
+      return (
+        <div className={`verse-row heading level-${level} ${focusClass}`} data-index={index}>
+          <Heading>{item[1]}</Heading>
+        </div>
+      );
+    } else {
+      return (
+        <div className={`verse-row ${focusClass}`} data-index={index}>
+          <span className="text" onClick={(e) => handleVerseClick(index, e)}>
+            {item[1]}
+          </span>
+        </div>
+      );
+    }
   };
   return (
     <div className="app-wrapper">
@@ -210,6 +256,21 @@ function App() {
             </div>
             <button onClick={() => setShowSettings(false)}>Close</button>
           </div>
+        </div>
+      )}
+      {bubbleInfo && (
+        <div
+          ref={bubbleRef}
+          className="bubble"
+          style={{
+            position: 'fixed',
+            left: `${bubbleInfo.position.left}px`,
+            top: `${bubbleInfo.position.top}px`
+          }}
+        >
+          <a href={bubbleInfo.url} target="_blank" rel="noopener noreferrer">
+            {bubbleInfo.ref}
+          </a>
         </div>
       )}
     </div>
