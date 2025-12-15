@@ -48,8 +48,10 @@ h2{
   display: block;
   transition: transform 0.15s, color 0.1s, padding 0.1s, border 0.05s, filter 0.1s;
   transform-origin: center;
-  filter: blur(.03rem);
+  filter: blur(.025rem);
   overflow: hidden;
+  border-bottom: 1px dotted #404040;
+  border-top: 1px solid #404040;
 }
 .text {
   padding: 0 4rem 0 0;
@@ -83,7 +85,7 @@ h2{
 }
 
 .focus-0 {
-  transform: scale(1.05);
+  transform: scale(1.03);
   color: #eee;
   border-bottom: 1px solid #4c1fff;
   border-top: 1px solid #4c1fff;
@@ -91,13 +93,13 @@ h2{
   filter: blur(0);
 }
 .focus-1 {
-  transform: scale(1.02);
+  transform: scale(1.015);
   color: #ddd;
   filter: drop-shadow(0 0 1.2rem rgb(44, 180, 234));
   filter: blur(0);
 }
 .focus-2 {
-  transform: scale(1.015);
+  transform: scale(1.0125);
   color: #d0d0d0ef;
   border-bottom: 1px solid #3917c0;
   border-top: 1px solid #3917c0;

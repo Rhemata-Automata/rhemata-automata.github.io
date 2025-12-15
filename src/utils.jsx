@@ -55,7 +55,7 @@ const constructVerseURL = (ref) => {
   const chapterVerse = lastSpace > -1 ? ref.slice(lastSpace + 1) : '';
   const [chapter, verse_range] = chapterVerse.split(':');
   const formatted_book = bookPart.replace(/\s+/g, '').toLowerCase().substring(0, 3);
-  return `https://www.blb.org/csb/${formatted_book}/${chapter}/${verse_range}`;
+  return `https://blb.org/csb/${formatted_book}/${chapter}/${verse_range}`;
 };
 
 export { throttle, debounce, otBooks, ntBooks, constructVerseURL };
