@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Virtuoso } from 'react-virtuoso';
-import './App.css';
+import './App.scss';
 import { otBooks, ntBooks, throttle, debounce, constructVerseURL } from './utils';
 function App() {
   const [bibleData, setBibleData] = useState([]);
@@ -166,23 +166,19 @@ function App() {
   const itemContent = (index) => {
     const item = filteredBible[index];
     const focusClass = getFocusClass(index);
+
     if (item.length === 3) {
-      const level = item[2];
-      const Heading = `h${level}`;
       return (
-        <div className={`verse-row heading level-${level} ${focusClass}`} data-index={index}>
-          <Heading>{item[1]}</Heading>
+        <div className={`verse-row heading-${item[2]} ${focusClass}`} data-index={index}>
+          {item[1]}
         </div>
       );
     }
     return (
-      <div className={`verse-row ${focusClass}`} data-index={index}>
-        <span className="text" onClick={(e) => handleVerseClick(index, e)}>
-          {item[1]}
-        </span>
-      </div>
+      <div className={`verse-row ${focusClass}`} data-index={index} onClick={(e) => handleVerseClick(index, e)}>{item[1]}</div>
     );
   };
+
   return (
     <div className="app-wrapper">
       <Virtuoso
