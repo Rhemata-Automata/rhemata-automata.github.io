@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import './App.css';
 import { otBooks, ntBooks, throttle, debounce, constructVerseURL } from './utils';
 function App() {
   const [bibleData, setBibleData] = useState([]);
   const [filteredBible, setFilteredBible] = useState([]);
-  const [verseIndices, setVerseIndices] = useState([]);
   const [selectedBooks, setSelectedBooks] = useState({});
   const [focusIndex, setFocusIndex] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -21,24 +20,15 @@ function App() {
       .then(res => res.json())
       .then(data => {
         setBibleData(data);
-        const allBooks = [...otBooks, ...ntBooks];
-        setSelectedBooks(Object.fromEntries(allBooks.map(book => [book, true])));
-        setFilteredBible(data);
+        setSelectedBooks(Object.fromEntries([...otBooks, ...ntBooks].map(book => [book, true])));
       });
   }, []);
   useEffect(() => {
     if (!bibleData.length) return;
-    const filtered = bibleData.filter(verse => {
-      const ref = verse[0];
-      const parts = ref.split(' ');
-      const cv = parts.pop();
-      const book = parts.join(' ');
-      return selectedBooks[book] || false;
-    });
+    const filtered = bibleData.filter(verse => selectedBooks[verse[0].replace(/ \d.+$/, '')]);
     setFilteredBible(filtered);
   }, [selectedBooks, bibleData]);
   useEffect(() => {
-    setVerseIndices(filteredBible.map((item, i) => item.length === 2 ? i : null).filter(i => i !== null));
     if (filteredBible.length > 0 && virtuosoRef.current) {
       jumpToRandom();
     }
@@ -77,44 +67,42 @@ function App() {
       container.removeEventListener('mouseleave', handleMouseUpOrLeave);
     };
   }, []);
-  useEffect(() => {
-    const handleScroll = throttle(() => {
-      if (!containerRef.current) return;
-      const container = containerRef.current;
-      const viewportHeight = container.clientHeight;
-      const scrollTop = container.scrollTop;
-      const centerY = scrollTop + viewportHeight / 2;
-      let minDistance = Infinity;
-      let newFocusIndex = null;
-      const verseRows = container.querySelectorAll('.verse-row');
-      verseRows.forEach(el => {
-        const index = parseInt(el.dataset.index, 10);
-        const rowTop = el.offsetTop;
-        const rowHeight = el.offsetHeight;
-        const rowCenter = rowTop + rowHeight / 2;
-        const distance = Math.abs(centerY - rowCenter);
-        if (distance < minDistance) {
-          minDistance = distance;
-          newFocusIndex = index;
-        }
-      });
-      if (newFocusIndex !== null && newFocusIndex !== focusIndex) {
-        setFocusIndex(newFocusIndex);
-      }
-    }, 64);
+  const handleScrollRaw = useCallback(() => {
     const container = containerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-      handleScroll(); 
+    if (!container) return;
+    const viewportHeight = container.clientHeight;
+    const scrollTop = container.scrollTop;
+    const centerY = scrollTop + viewportHeight / 2;
+    let minDistance = Infinity;
+    let newFocusIndex = null;
+    const verseRows = container.querySelectorAll('.verse-row');
+    verseRows.forEach(el => {
+      const index = parseInt(el.dataset.index, 10);
+      const rowTop = el.offsetTop;
+      const rowHeight = el.offsetHeight;
+      const rowCenter = rowTop + rowHeight / 2;
+      const distance = Math.abs(centerY - rowCenter);
+      if (distance < minDistance) {
+        minDistance = distance;
+        newFocusIndex = index;
+      }
+    });
+    if (newFocusIndex !== null) {
+      setFocusIndex(prev => prev === newFocusIndex ? prev : newFocusIndex);
     }
+  }, []);
+  const handleScroll = throttle(handleScrollRaw, 64);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    container.addEventListener('scroll', handleScroll);
+    handleScroll();
     window.addEventListener('resize', handleScroll);
     return () => {
-      if (container) {
-        container.removeEventListener('scroll', handleScroll);
-      }
+      container.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
     };
-  }, [focusIndex]);
+  }, [handleScroll]);
   useEffect(() => {
     if (!bubbleInfo) return;
     const hideBubble = () => setBubbleInfo(null);
@@ -145,29 +133,30 @@ function App() {
     const ref = verse[0];
     const url = constructVerseURL(ref);
     setBubbleInfo({
-      index,                     
+      index,
       ref,
       url,
       position: { left: e.clientX + 10, top: e.clientY + 10 }
     });
   }, [filteredBible, bubbleInfo]);
-  const jumpToRandom = () => {
-    if (!verseIndices.length || !virtuosoRef.current) return;
-    const randIdx = Math.floor(Math.random() * verseIndices.length);
-    const randIndex = verseIndices[randIdx];
+  const jumpToRandom = useCallback(() => {
+    if (!filteredBible.length || !virtuosoRef.current) return;
+    const verseIndices = filteredBible.map((item, i) => item.length === 2 ? i : null).filter(Boolean);
+    if (!verseIndices.length) return;
+    const randIndex = verseIndices[Math.floor(Math.random() * verseIndices.length)];
     virtuosoRef.current.scrollToIndex({
       index: randIndex,
       align: 'center',
       behavior: 'auto'
     });
-  };
+  }, [filteredBible]);
   const getFocusClass = (index) => {
     if (focusIndex === null) return '';
     const distance = Math.abs(index - focusIndex);
     return distance <= 3 ? `focus-${distance}` : '';
   };
-  const otSelected = otBooks.every(book => selectedBooks[book]);
-  const ntSelected = ntBooks.every(book => selectedBooks[book]);
+  const otSelected = useMemo(() => otBooks.every(book => selectedBooks[book]), [selectedBooks]);
+  const ntSelected = useMemo(() => ntBooks.every(book => selectedBooks[book]), [selectedBooks]);
   const updateBooks = (booksArray, value) => {
     setSelectedBooks(prev => ({
       ...prev,
@@ -185,15 +174,14 @@ function App() {
           <Heading>{item[1]}</Heading>
         </div>
       );
-    } else {
-      return (
-        <div className={`verse-row ${focusClass}`} data-index={index}>
-          <span className="text" onClick={(e) => handleVerseClick(index, e)}>
-            {item[1]}
-          </span>
-        </div>
-      );
     }
+    return (
+      <div className={`verse-row ${focusClass}`} data-index={index}>
+        <span className="text" onClick={(e) => handleVerseClick(index, e)}>
+          {item[1]}
+        </span>
+      </div>
+    );
   };
   return (
     <div className="app-wrapper">
