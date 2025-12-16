@@ -35,8 +35,6 @@ html {
   width: 100vw;
   max-width: 100vw;
   overflow: hidden;
-    margin: 0 4rem .15rem 2rem;
-
 }
 
 [data-virtuoso-scroller='true'] {
@@ -55,11 +53,10 @@ html {
 .text {
   text-align: justify;
   white-space: normal;
-  margin: 4px 0;
+  margin: 4px 3.5rem 0 2.2rem;
   box-sizing: border-box;
   line-height: 1.2;
-  width: 90%;
-  padding: 0 1rem .15rem;
+  max-width: 100%;
   font-size: 1rem;
   color: $text-5;
   display: block;
