@@ -15,6 +15,7 @@ $accent-1: #a0d8ff;
 $accent-2: #4c1fff;
 $accent-3: #00f42d;
 
+* {overscroll-behavior:none;scroll-snap-type:none;}
 
 body,
 html {
