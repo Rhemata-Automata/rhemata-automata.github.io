@@ -35,8 +35,8 @@ function Bubble({ bubbleInfo, onClose, containerRef }) {
       className="bubble"
       style={{
         position: 'fixed',
-        left: `${bubbleInfo.position.left - 15}px`,
-        top: `${bubbleInfo.position.top - 10}px`
+        left: `${bubbleInfo.position.left - 45}px`,
+        top: `${bubbleInfo.position.top - 42}px`
       }}
     >
       <a href={bubbleInfo.url} target="_blank" rel="noreferrer">

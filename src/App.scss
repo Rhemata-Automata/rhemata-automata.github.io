@@ -11,12 +11,10 @@ $text-2: #e6e6e6;
 $text-3: #cccccc;
 $text-4: #bdbdbddd;
 $text-5: #aaaaaabb;
-$border-dark: #404040;
-$border-focus: #4c1fff;
-$accent-glow: rgb(79, 205, 255);
-$button-border: #444;
-$button-hover-bg: #333;
-$link-color: #a0d8ff;
+$accent-1: #a0d8ff;
+$accent-2: #4c1fff;
+$accent-3: #00f42d;
+
 
 body,
 html {
@@ -53,7 +51,7 @@ html {
 .text {
   text-align: justify;
   white-space: normal;
-  margin: 4px 3.5rem 0 2.2rem;
+  margin: .1rem 3.5rem .15rem 2.2rem;
   box-sizing: border-box;
   line-height: 1.2;
   max-width: 100%;
@@ -63,8 +61,8 @@ html {
   transition: transform 0.25s, color 0.1s, padding 0.05s, border 0.05s, filter 0.15s;
   transform-origin: center;
   overflow: hidden;
-  border-bottom: 1px dotted $border-dark;
-  border-top: 1px solid $border-dark;
+  border-bottom: 1px dotted $bg-4;
+  border-top: 1px solid $bg-4;
   user-select: none;
   cursor: pointer;
 }
@@ -95,8 +93,8 @@ html {
 .focus-0 {
   transform: scale(1.03);
   color: $text-1;
-  border-bottom: 2px dotted $border-focus;
-  border-top: 2px dotted $border-focus;
+  border-bottom: 2px dotted $accent-2;
+  border-top: 2px dotted $accent-2;
   filter: blur(0);
   text-decoration: underline;
   text-underline-offset: 0.15rem;
@@ -142,25 +140,26 @@ html {
 .bubble {
   opacity: 0.9;
   position: fixed;
-  background: $bg-2;
+  background: $bg-2-7;
   color: $text-1;
   padding: 1rem;
-  border-radius: 1rem;
+  border-radius: 115rem;
+  border: 1px dotted $accent-3;
   font-size: 1.1rem;
   pointer-events: auto;
   z-index: 1000;
   box-shadow: 0 4px 12px $bg-0-3;
-  backdrop-filter: blur(0.1rem);
+  backdrop-filter: blur(0.3rem);
   max-width: 280px;
   word-wrap: break-word;
 
   a {
-    color: $link-color;
+    color: $accent-1;
     text-decoration: underline;
     font-weight: 500;
 
     &:hover {
-      color: $text-1;
+      color: $accent-3;
     }
   }
 }
@@ -172,51 +171,40 @@ html {
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  align-items: center;
   z-index: 100;
+}
+
+.right-buttons button {
+  padding: 15px 10px;
+  margin-bottom: 10px;
+  opacity:.7;
+
+  &:hover {
+    padding-right: 15px;
+    opacity:.9;
+  }
 }
 
 button {
   opacity: 0.9;
   background-color: $bg-3;
   color: $text-4;
-  border: 1px solid $button-border;
+  border: 1px solid $bg-4;
   cursor: pointer;
   border-radius: 4px 0 0 4px;
-  transition: all 0.2s;
+  transition: all 0.25s;
 
   &:hover {
-    background-color: $button-hover-bg;
+    background-color: $bg-3;
     color: $text-1;
   }
 
   &:active {
-    background-color: $bg-0;
+    background-color: $accent-1;
   }
 }
 
-.settings-btn {
-  padding: 5px;
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-
-  &:hover {
-    padding-right: 10px;
-  }
-}
-
-.random-btn {
-  padding: 15px 10px;
-  font-size: 0.8rem;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-
-  &:hover {
-    padding-right: 15px;
-  }
-}
-
-.overlay {
+.settings-overlay {
   position: fixed;
   inset: 0;
   background-color: $bg-0-5;
@@ -232,11 +220,41 @@ button {
   padding: 20px;
   border-radius: 8px;
   max-width: 90vw;
-  max-height: 85vh;
+  max-height: 90vh;
   overflow-y: auto;
 
   h2 {
     margin-top: -1rem;
+  }
+}
+
+.close-btn-bottom {
+  width:100%;
+  align-items:center;
+  text-align:center;
+
+}
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: inherit;
+    padding: 0;
+
+    &:hover {
+      color: $accent-1;
+    }
   }
 }
 
@@ -251,13 +269,31 @@ button {
 
   label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 0;
   }
 }
 
 .books-columns {
   columns: 2;
   column-gap: 20px;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .books-columns {
+    columns: 1;
+  }
+
+  .settings-modal {
+    margin:0;
+    width: 100vw;
+    min-height:100vh;
+    overflow-y: auto;
+
+    h2 {
+      margin:0;
+    }
+  }
 }
 
 .testament-labels {

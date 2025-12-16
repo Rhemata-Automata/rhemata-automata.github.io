@@ -51,7 +51,7 @@ function App() {
       index,
       ref,
       url,
-      position: { left: e.clientX - 15, top: e.clientY - 10 }
+      position: { left: e.clientX, top: e.clientY }
     });
   }, [filteredBible, bubbleInfo]);
 
