@@ -60,7 +60,7 @@ html {
   font-size: 1rem;
   color: $text-5;
   display: block;
-  transition: transform 0.25s, color 0.1s, padding 0.05s, filter 0.15s;
+  transition: transform 0.35s ease-in-out, color 0.2s, padding 0.15s, filter 0.30s ease-in-out, opacity 0.25s ease-in-out;
   transform-origin: center;
   overflow: hidden;
   border-bottom: 1px dotted $bg-4;
@@ -72,7 +72,7 @@ html {
   
   &.focus-0 {
     opacity:1;
-    transform: scale(1.03);
+    transform: scaleY(1.03) scaleX(1.015);
     color: $text-1;
     border-bottom: 2px dotted $accent-2;
     border-top: 2px dotted $accent-2;
@@ -86,7 +86,7 @@ html {
 
   &.focus-1 {
     opacity:.95;
-    transform: scale(1.015);
+    transform: scaleY(1.016) scaleX(1.008);
     color: $text-2;
     filter: blur(0);
     text-decoration: underline;
@@ -151,13 +151,15 @@ html {
 }
 
 .redletter {
-  color: #e63946;
-  letter-spacing:.09rem;
+  color: #ea1f30;
+  letter-spacing:.075rem;
+  word-spacing:-.065rem;
   text-shadow:
-    0 0 2px rgba(255, 255, 255, 0.1),
+    0 0 1px rgba(255, 255, 255, 0.1),
+    0 0 2px rgb(195, 0, 0, .8),
     0 0 4px rgba(255, 100, 100, 0.3),
-    0 0 8px rgba(255, 255, 255, 0.2),
-    0 0 12px rgba(255, 215, 0, 0.2);
+    0 0 8px rgba(255, 255, 255, 0.3),
+    0 0 12px rgba(255, 215, 0, 0.15);
   filter: 
     drop-shadow(0 0 3px rgba(255, 215, 0, 0.01))
     drop-shadow(0 0 4px rgba(255, 50, 50, 0.1));
@@ -222,7 +224,6 @@ html {
     padding: .5rem;
     background: $bg-4-7;
     border-radius:1rem;
-
 
     &:hover {
       color: $accent-3;

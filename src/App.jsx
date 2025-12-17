@@ -15,7 +15,7 @@ function App() {
   const containerRef = useRef(null);
   const virtuosoRef = useRef(null);
   const { filteredBible, selectedBooks, setSelectedBooks } = useBibleData();
-  useDragScroll(containerRef);
+  const { hasMoved } = useDragScroll(containerRef);
   const { focusIndex, getFocusClass } = useFocusTracking(containerRef);
   const jumpToRandom = useCallback(() => {
     if (!filteredBible.length || !virtuosoRef.current) return;
@@ -34,6 +34,11 @@ function App() {
     }
   }, [filteredBible, jumpToRandom]);
   const handleVerseClick = useCallback((index, e) => {
+    if (hasMoved.current) {
+      hasMoved.current = false; // Reset for next interaction
+      return; // Ignore click if it was part of a drag
+    }
+
     e.stopPropagation();
     if (bubbleInfo && bubbleInfo.index === index) {
       setBubbleInfo(null);
@@ -48,7 +53,7 @@ function App() {
       url,
       position: { left: e.clientX, top: e.clientY }
     });
-  }, [filteredBible, bubbleInfo]);
+  }, [filteredBible, bubbleInfo, hasMoved]);
   const itemContent = useCallback((index) => {
     const item = filteredBible[index];
     const focusClass = getFocusClass(index);
