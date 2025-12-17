@@ -1,23 +1,15 @@
 import React, { useMemo } from 'react';
 import { otBooks, ntBooks } from '../utils';
-
-
 function Settings({ isOpen, onClose, selectedBooks, onBooksChange }) {
   const otSelected = useMemo(() => otBooks.every(book => selectedBooks[book]), [selectedBooks]);
   const ntSelected = useMemo(() => ntBooks.every(book => selectedBooks[book]), [selectedBooks]);
-
-
   const updateBooks = (booksArray, value) => {
     onBooksChange(prev => ({
       ...prev,
       ...Object.fromEntries(booksArray.map(book => [book, value === 'toggle' ? !prev[book] : value]))
     }));
   };
-
-
   if (!isOpen) return null;
-
-
   return (
     <div className="settings-overlay" onClick={onClose}>
       <div className="settings-modal" onClick={e => e.stopPropagation()}>
@@ -73,13 +65,11 @@ function Settings({ isOpen, onClose, selectedBooks, onBooksChange }) {
             </div>
           </div>
         </div>
-        <div  className="close-btn-bottom">
+        <div className="close-btn-bottom">
           <button onClick={onClose}>Close</button>
-          </div>
+        </div>
       </div>
     </div>
   );
 }
-
-
 export default Settings;

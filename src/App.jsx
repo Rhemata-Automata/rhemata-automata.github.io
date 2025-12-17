@@ -9,17 +9,14 @@ import TextItem from './views/TextItem';
 import { useBibleData } from './hooks/useBibleData';
 import { useDragScroll } from './hooks/useDragScroll';
 import { useFocusTracking } from './hooks/useFocusTracking';
-
 function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [bubbleInfo, setBubbleInfo] = useState(null);
   const containerRef = useRef(null);
   const virtuosoRef = useRef(null);
-
   const { filteredBible, selectedBooks, setSelectedBooks } = useBibleData();
   useDragScroll(containerRef);
   const { focusIndex, getFocusClass } = useFocusTracking(containerRef);
-
   const jumpToRandom = useCallback(() => {
     if (!filteredBible.length || !virtuosoRef.current) return;
     const verseIndices = filteredBible.map((item, i) => item.length === 2 ? i : null).filter(Boolean);
@@ -31,13 +28,11 @@ function App() {
       behavior: 'auto'
     });
   }, [filteredBible]);
-
   useEffect(() => {
     if (filteredBible.length > 0 && virtuosoRef.current) {
       jumpToRandom();
     }
   }, [filteredBible, jumpToRandom]);
-
   const handleVerseClick = useCallback((index, e) => {
     e.stopPropagation();
     if (bubbleInfo && bubbleInfo.index === index) {
@@ -54,7 +49,6 @@ function App() {
       position: { left: e.clientX, top: e.clientY }
     });
   }, [filteredBible, bubbleInfo]);
-
   const itemContent = (index) => {
     const item = filteredBible[index];
     const focusClass = getFocusClass(index);
@@ -67,7 +61,6 @@ function App() {
       />
     );
   };
-
   return (
     <div className="app-wrapper">
       <Virtuoso
@@ -94,5 +87,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
