@@ -30,7 +30,7 @@ export function useBibleData() {
   useEffect(() => {
     if (!bibleData.length) return;
     const filtered = bibleData.filter(verse => {
-      const bookName = typeof verse[0] === 'string' ? verse[0].replace(/ \d.+$/, '') : '';
+      const bookName = typeof verse[0] === 'string' ? verse[0].replace(/ \d+.*$/, '') : '';
       return selectedBooks[bookName];
     });
     setFilteredBible(filtered);

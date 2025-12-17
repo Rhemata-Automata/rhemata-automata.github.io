@@ -49,7 +49,7 @@ function App() {
       position: { left: e.clientX, top: e.clientY }
     });
   }, [filteredBible, bubbleInfo]);
-  const itemContent = (index) => {
+  const itemContent = useCallback((index) => {
     const item = filteredBible[index];
     const focusClass = getFocusClass(index);
     return (
@@ -60,7 +60,7 @@ function App() {
         onVerseClick={handleVerseClick}
       />
     );
-  };
+  }, [filteredBible, getFocusClass, handleVerseClick]);
   return (
     <div className="app-wrapper">
       <Virtuoso

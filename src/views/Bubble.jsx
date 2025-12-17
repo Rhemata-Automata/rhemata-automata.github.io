@@ -2,9 +2,31 @@ import React, { useEffect, useRef } from 'react';
 
 function Bubble({ bubbleInfo, onClose, containerRef }) {
   const bubbleRef = useRef(null);
+  const prevIndexRef = useRef(null);
 
   useEffect(() => {
-    if (!bubbleInfo) return;
+    // Cleanup previous highlight when bubble closes or changes
+    if (prevIndexRef.current !== null && containerRef.current) {
+      const prevWrapper = containerRef.current.querySelector(`[data-index="${prevIndexRef.current}"]`);
+      if (prevWrapper) {
+        prevWrapper.classList.remove('highlighted-item');
+      }
+    }
+
+    if (!bubbleInfo) {
+      prevIndexRef.current = null;
+      return;
+    }
+
+    // Highlight the new item wrapper
+    prevIndexRef.current = bubbleInfo.index;
+
+    const wrapper = containerRef.current?.querySelector(`[data-index="${bubbleInfo.index}"]`);
+    if (wrapper) {
+      wrapper.classList.add('highlighted-item');
+      // Optional: gently scroll the verse into view if it's partially off-screen
+      wrapper.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
 
     const handleClickOutside = (e) => {
       if (bubbleRef.current && !bubbleRef.current.contains(e.target)) {
@@ -20,6 +42,10 @@ function Bubble({ bubbleInfo, onClose, containerRef }) {
     }
 
     return () => {
+      // Cleanup on unmount or when bubbleInfo changes
+      if (wrapper) {
+        wrapper.classList.remove('highlighted-item');
+      }
       document.removeEventListener('click', handleClickOutside);
       if (containerRef.current) {
         containerRef.current.removeEventListener('scroll', handleScrollHide);
