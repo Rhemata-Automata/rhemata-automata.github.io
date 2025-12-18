@@ -62,30 +62,46 @@ html {
   display: block;
   transition: transform 0.35s ease-in-out, color 0.2s, padding 0.15s, filter 0.30s ease-in-out, opacity 0.25s ease-in-out;
   transform-origin: center;
-  overflow: hidden;
-  border-bottom: 1px dotted $bg-4;
-  border-top: 1px solid $bg-4;
-  border-radius:.5rem;
-  padding:0 .3rem;
+  overflow: visible; 
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent; 
+  border-radius: .5rem;
+  padding: 0 .3rem;
   user-select: none;
   cursor: pointer;
-  
+  position: relative; /* Create positioning context for the pseudo-element */
+
+  /* The Pseudo-element handles the VISUAL border */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -2px; 
+    border-radius: inherit;
+    pointer-events: none;
+    transition: inherit;
+    border-top: 1px solid $bg-4;
+    border-bottom: 1px dotted $bg-4;
+  }
+
   &.focus-0 {
-    opacity:1;
+    opacity: 1;
     transform: scaleY(1.03) scaleX(1.015);
     color: $text-1;
-    border-bottom: 2px dotted $accent-2;
-    border-top: 2px dotted $accent-2;
     filter: blur(0);
     text-decoration: underline;
     text-underline-offset: 0.15rem;
     text-decoration-thickness: 0.03rem;
     text-decoration-style: dotted;
     text-decoration-color: $text-4;
+
+    &::before {
+      border-bottom: 2px dotted $accent-2;
+      border-top: 2px dotted $accent-2;
+    }
   }
 
   &.focus-1 {
-    opacity:.95;
+    opacity: .95;
     transform: scaleY(1.016) scaleX(1.008);
     color: $text-2;
     filter: blur(0);
@@ -97,21 +113,24 @@ html {
   }
 
   &.focus-2 {
-    opacity:.9;
+    opacity: .9;
     transform: scale(1.0125);
     color: $text-3;
-    border-bottom: 2px dotted #3917c0;
-    border-top: 2px dotted #3917c0;
     filter: blur(0.015rem);
     text-decoration: underline;
     text-underline-offset: 0.05rem;
     text-decoration-thickness: 0.01rem;
     text-decoration-color: $text-5;
     text-decoration-style: dotted;
+
+    &::before {
+      border-bottom: 2px dotted #3917c0;
+      border-top: 2px dotted #3917c0;
+    }
   }
 
   &.focus-3 {
-    opacity:.85;
+    opacity: .85;
     transform: scale(1.01);
     color: $text-4;
     filter: blur(0.017rem);
@@ -232,23 +251,56 @@ html {
 }
 
 .right-buttons {
+  max-width: 3.5rem;
   position: fixed;
   right: 0;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
+  align-items: flex-end; 
   z-index: 100;
 }
 
 .right-buttons button {
   padding: 15px 10px;
   margin-bottom: 10px;
-  opacity:.7;
+  opacity: .5;
+  transition: padding-right 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
+}
 
-  &:hover {
-    padding-right: 15px;
-    opacity:.9;
+.right-buttons button:hover {
+  padding-right: 15px;
+  opacity: .9;
+}
+
+.autoscroll-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; 
+  
+  .autoscroll-btn {
+    transition: all 0.5s ease;
+    
+    &.playing {
+      background: #4caf4f66;
+      opacity: 1;
+    }
+  }
+
+  .speed-slider {
+    opacity: 0;
+    width: 2.5rem;
+    margin: 0 .1rem 0 0;
+    cursor: pointer;
+    pointer-events: none;
+    transition: opacity 0.6s ease-in-out .1s;
+  }
+
+  &:hover .speed-slider {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 
