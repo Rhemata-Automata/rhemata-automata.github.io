@@ -17,7 +17,6 @@ function RightButtons({
         <i className="fa fa-refresh fa-lg"></i>
       </button>
       
-      {/* New container handling the hover state purely via CSS */}
       <div className="autoscroll-controls">
         <button 
           className={`autoscroll-btn ${isScrolling ? 'playing' : ''}`}
@@ -26,15 +25,13 @@ function RightButtons({
         >
           <i className={`fa ${isScrolling ? 'fa-pause' : 'fa-play'} fa-lg`}></i>
         </button>
-        
-        {/* Slider is always in DOM, hidden/shown via CSS */}
         <input 
           type="range" 
           min="1" 
           max="100" 
           value={scrollSpeed} 
           onChange={(e) => onSpeedChange(Number(e.target.value))}
-          className="speed-slider"
+          className={`speed-slider ${isScrolling ? 'active' : ''}`}
           title={`Speed: ${scrollSpeed}%`}
         />
       </div>
